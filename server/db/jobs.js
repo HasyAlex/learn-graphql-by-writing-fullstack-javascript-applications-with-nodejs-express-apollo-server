@@ -28,6 +28,7 @@ export async function createJob({ companyId, title, description }) {
 }
 
 export async function deleteJob(id) {
+  console.log(id)
   const job = await getJobTable().first().where({ id });
   if (!job) {
     throw new Error(`Job not found: ${id}`);
