@@ -1,6 +1,7 @@
 import { getJobs, getJob, getJobsByCompany, createJob, deleteJob, updateJob } from './db/jobs.js'
 import { getCompany } from './db/companies.js'
 import { GraphQLError } from 'graphql';
+import { UnauthorizedError } from 'express-jwt';
 
 export const resolvers = {
     Query: {
@@ -22,15 +23,32 @@ export const resolvers = {
     },
 
     Mutation: {
-        createJob: (_root, { input: {title, description}}) =>{
-            const companyId = "FjcJCHJALA4i";
+        createJob: (_root, { input: {title, description}}, { user }) =>{
+            if(!user) {
+                throw unauthorizedError('Missing Authentication!')
+            }
+            const companyId = user.companyId;
             return createJob({ companyId, title , description})
         },
-        deleteJob: (_root, {id}) => {
-            return deleteJob(id)
+        deleteJob: async (_root, {id}, {user}) => {
+            if(!user) {
+                throw unauthorizedError('Missing authentication')
+            }
+            const job = await deleteJob(id, user.companyId)
+            if(!job) {
+                throw notFoundError(`No Job found with id :${id}`)                
+            }
+            return job
         },
-        updateJob: (_root, {id, title, description}) => {
-            return updateJob({id, title, description})
+        updateJob: async (_root, {id, title, description}, {user}) => {
+            if(!user){
+                throw unauthorizedError('Missing authentication')
+            }
+            const job = await updateJob({id, companyId: user.companyId, title, description})
+            if(!job){
+                throw notFoundError(`No Job found with id :${id}`)                
+            }
+            return job;
         }
     },
 
@@ -53,5 +71,11 @@ function toIsoDate(value) {
 function notFoundError(message) {
     return new GraphQLError(message, {
         extensions: {code: 'NOT_FOUND' }
+    })
+}
+
+function unauthorizedError(message) {
+    return new GraphQLError(message, {
+        extensions: {code: 'UNAUTHORIZED' }
     })
 }
