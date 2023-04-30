@@ -3,15 +3,8 @@ import { useJobs } from '../lib/graphql/hooks';
 
 
 function HomePage() {
-  // const [jobs, setJobs] = useState([])
-
-  // useEffect(()=>{
-  //   getJobs().then(setJobs)
-  // }, [])
-
   const { jobs, loading, error } = useJobs();
 
-    
   if(loading){
     return <div>Loading...</div>
   }

@@ -5,11 +5,6 @@ import { useJob } from '../lib/graphql/hooks';
 
 function JobPage() {
   const { jobId } = useParams();
-
-  // const [job,setJob] = useState();
-  // useEffect(() => {
-  //   getJob(jobId).then(setJob)
-  // }, [jobId])
   const {job, loading, error} = useJob(jobId)
   
   if(loading){
