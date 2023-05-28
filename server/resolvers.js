@@ -54,9 +54,13 @@ export const resolvers = {
 
     //resolver function
     Job: {
+        // company: (jobs) => getCompany(jobs.companyId)
+        company: (job, _args, { companyLoader }) => {
+            return companyLoader.load(job.companyId);
+        },
+
         //resolver function override the default values 
-        date: (job) => toIsoDate(job.createdAt),
-        company: (jobs) => getCompany(jobs.companyId)
+        date: (job) => toIsoDate(job.createdAt)
     },
 
     Company: {
